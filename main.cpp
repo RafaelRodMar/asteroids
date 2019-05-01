@@ -277,7 +277,7 @@ int main()
     app.setFramerateLimit(60);
     app.setPosition(sf::Vector2i(200,0));
 
-    sf::Texture t1,t2,t3,t4,t5,t6,t7,t8,t9,t10;
+    sf::Texture t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14;
     t1.loadFromFile("images/spaceship.png");
     t2.loadFromFile("images/background-0.jpg");
     t3.loadFromFile("images/type_C.png");
@@ -288,15 +288,30 @@ int main()
     t8.loadFromFile("images/splash.png");
     t9.loadFromFile("images/menu.png");
     t10.loadFromFile("images/gameover.png");
+    t11.loadFromFile("images/background-1.png");
+    t12.loadFromFile("images/background-2.png");
+    t13.loadFromFile("images/background-3.png");
+    t14.loadFromFile("images/background-4.png");
 
     t1.setSmooth(true);
     t2.setSmooth(true);
+    t11.setSmooth(true);
+    t12.setSmooth(true);
+    t13.setSmooth(true);
+    t14.setSmooth(true);
 
     //assign textures to sprites
     sf::Sprite background(t2);
     sf::Sprite splash(t8);
     sf::Sprite menu(t9);
     sf::Sprite gameover(t10);
+    sf::Sprite backgr[5];
+    backgr[0].setTexture(t2);
+    backgr[1].setTexture(t11);
+    backgr[2].setTexture(t12);
+    backgr[3].setTexture(t13);
+    backgr[4].setTexture(t14);
+    int backgrindex = 0;
 
     //create animations
     Animation sExplosion(t3, 0,0,171,171, 48, 0.5);
@@ -360,6 +375,7 @@ int main()
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S))
                 {
                     state=GAME;
+                    backgrindex = rand()%5;
                     lives = 3;
                     score = 0;
                     p->shield = true;
@@ -511,7 +527,7 @@ int main()
 
         //Game_paint();
         //////draw//////
-        app.draw(background);
+        app.draw(backgr[backgrindex]);
         if(state==MENU)
         {
             app.draw(menu);
