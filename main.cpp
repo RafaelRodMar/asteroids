@@ -267,6 +267,17 @@ void WriteHiScores()
     out.close();
 }
 
+void Text(sf::RenderWindow &app, std::string pstr, float px, float py,sf::Color pcolor, int psize, sf::Font pfont)
+{
+    sf::Text str;
+    str.setString(pstr);
+    str.setFont(pfont);
+    str.setCharacterSize(psize);
+    str.setPosition(px, py);
+    str.setFillColor(pcolor);
+    app.draw(str);
+}
+
 
 int main()
 {
@@ -274,7 +285,6 @@ int main()
 
     // Create the main window
     sf::RenderWindow app(sf::VideoMode(screenwidth, screenheight), "Asteroids");
-    app.setFramerateLimit(60);
     app.setPosition(sf::Vector2i(200,0));
 
     sf::Texture t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14;
@@ -334,10 +344,6 @@ int main()
 
     // Load the text font
     font.loadFromFile("sansation.ttf");
-    showScore.setFont(font);
-    showScore.setCharacterSize(20);
-    showScore.setPosition(450.f, 0.f);
-    showScore.setFillColor(sf::Color::White);
 
     std::list<Entity*> entities;
 
@@ -356,10 +362,15 @@ int main()
 
     ReadHiScores();
 
+    sf::Clock clock;
+    const float timePerFrame = 1.0 / 60.0;  //60fps.
+
     state = MENU;
 
     while(app.isOpen())
     {
+        sf::Time elapsed = clock.getElapsedTime();
+
         //HandleKeys();
         if(state==MENU)
         {
@@ -384,7 +395,7 @@ int main()
             }
         }
 
-        if(state==GAME)
+        if(state==GAME && elapsed.asSeconds() > timePerFrame)
         {
             sf::Event event;
             while (app.pollEvent(event))
@@ -439,7 +450,7 @@ int main()
         }
 
         //Game_cycle();
-        if(state==GAME)
+        if(state==GAME && elapsed.asSeconds() > timePerFrame)
         {
          for(auto a:entities)
          {
@@ -523,6 +534,8 @@ int main()
               if (e->life==false) {i=entities.erase(i); delete e;}
               else i++;
             }
+
+            clock.restart();
         }
 
         //Game_paint();
@@ -536,18 +549,12 @@ int main()
                 i->draw(app);
 
             //Show hi scores
-            sf::Text showHiScores;
-            showHiScores.setFont(font);
-            showHiScores.setCharacterSize(20);
-            showHiScores.setPosition(580.f, 350.f);
-            showHiScores.setFillColor(sf::Color::White);
             std::string histr="HiScores\n";
             for(int i=0;i<5;i++)
             {
                 histr = histr + "    " + std::to_string(vhiscores[i]) + "\n";
             }
-            showHiScores.setString(histr);
-            app.draw(showHiScores);
+            Text(app,histr,580.f,350.f,sf::Color::White,20,font);
         }
 
         if(state==GAME)
@@ -557,8 +564,7 @@ int main()
 
             // Draw the score
             std::string sc = "Lives: " + std::to_string(lives) + "   Score: " + std::to_string(score);
-            showScore.setString(sc);
-            app.draw(showScore);
+            Text(app,sc,450.f,0.f,sf::Color::White,20,font);
         }
 
         if(state==END_GAME)
