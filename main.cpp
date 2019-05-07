@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <time.h>
+#include <cstring>
 
 //variables globales
 const int screenwidth = 1200;
@@ -278,6 +279,24 @@ void Text(sf::RenderWindow &app, std::string pstr, float px, float py,sf::Color 
     app.draw(str);
 }
 
+// The keyboard's state in the current- and the previous frame
+bool CurrentKeyState[sf::Keyboard::KeyCount];
+bool PreviousKeyState[sf::Keyboard::KeyCount];
+
+bool KeyPressed(sf::Keyboard::Key Key)
+{
+    return (CurrentKeyState[Key] && !PreviousKeyState[Key]);
+}
+
+bool KeyReleased(sf::Keyboard::Key Key)
+{
+    return (!CurrentKeyState[Key] && PreviousKeyState[Key]);
+}
+
+bool KeyHeld(sf::Keyboard::Key Key)
+{
+    return CurrentKeyState[Key];
+}
 
 int main()
 {
@@ -345,14 +364,11 @@ int main()
     // Load the text font
     font.loadFromFile("sansation.ttf");
 
-    std::list<Entity*> entities;
+    //keyboard buffers initialization
+    memset(CurrentKeyState,     false, sizeof(CurrentKeyState));
+    memset(PreviousKeyState,    false, sizeof(PreviousKeyState));
 
-    for(int i=0;i<15;i++)
-    {
-      asteroid *a = new asteroid();
-      a->settings(sRock, rand()%screenwidth, rand()%screenheight, rand()%360, 25);
-      entities.push_back(a);
-    }
+    std::list<Entity*> entities;
 
     player *p = new player();
     p->settings(sPlayer,200,200,0,20);
@@ -400,32 +416,42 @@ int main()
             sf::Event event;
             while (app.pollEvent(event))
             {
-                if ((event.type == sf::Event::Closed) ||
-                    ((event.type == sf::Event::KeyPressed)
-                     && (event.key.code == sf::Keyboard::Escape)))
+                if (event.type == sf::Event::Closed)
                     app.close();
-
-                // Space is the fire key
-                if (event.type == sf::Event::KeyPressed)
-                    if (event.key.code == sf::Keyboard::Space && p->shield == false)
-                    {
-                        bullet *b = new bullet();
-                        b->settings(sBullet,p->x,p->y,p->angle,10);
-                        entities.push_back(b);
-                        Laser.play();
-                    }
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) p->shield = true;
+            // Save the state of each keyboard key (must be done before any Key* function is executed)
+            for(unsigned int i = 0; i < sf::Keyboard::KeyCount; ++i)
+            {
+                // Save the keyboard's state from the previous frame
+                PreviousKeyState[i] = CurrentKeyState[i];
+
+                // And save the keyboard's state in the current frame
+                CurrentKeyState[i] = sf::Keyboard::isKeyPressed((sf::Keyboard::Key)i);
+            }
+
+            if(KeyPressed(sf::Keyboard::Escape))
+                app.close();
+
+            // Space is the fire key
+            if (KeyPressed(sf::Keyboard::Space) && p->shield == false)
+            {
+                bullet *b = new bullet();
+                b->settings(sBullet,p->x,p->y,p->angle,10);
+                entities.push_back(b);
+                Laser.play();
+            }
+
+            if (KeyHeld(sf::Keyboard::Z)) p->shield = true;
             if(p->shieldtime > 0)
                 {p->shieldtime--;}
             else
             {
-                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) p->shield = false;
+                if (!KeyHeld(sf::Keyboard::Z)) p->shield = false;
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) p->angle+=3;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))  p->angle-=3;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            if (KeyHeld(sf::Keyboard::Right)) p->angle+=3;
+            if (KeyHeld(sf::Keyboard::Left))  p->angle-=3;
+            if (KeyHeld(sf::Keyboard::Up))
                 p->thrust=true;
             else
                 p->thrust=false;
@@ -517,7 +543,11 @@ int main()
              if (e->name=="explosion")
               if (e->anim.isEnd()) e->life=0;
 
-            if (rand()%150==0)
+            int numasteroids = 0;
+            for(auto e:entities)
+                if(e->name=="asteroid") numasteroids++;
+
+            if ( numasteroids < 20 )
              {
                asteroid *a = new asteroid();
                a->settings(sRock, 0,rand()%screenheight, rand()%360, 25);
