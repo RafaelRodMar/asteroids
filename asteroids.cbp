@@ -35,7 +35,11 @@
 			<Add library="dxguid" />
 			<Add directory="C:/SFML-2.5.1/lib" />
 		</Linker>
+		<Unit filename="animation.h" />
+		<Unit filename="entity.h" />
+		<Unit filename="game.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="various.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
