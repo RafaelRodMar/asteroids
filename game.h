@@ -46,9 +46,6 @@ public:
     sf::Sprite backgr[5];
     int backgrindex = 0;
 
-    //random numbers
-    std::default_random_engine random_engine;
-
     //player, asteroids and bullets
     std::list<Entity*> entities;
 
@@ -132,9 +129,6 @@ void Game::init(int pscrw, int pscrh, int pposx, int pposy, std::string pname)
     sPlayer_go.init(t1, 40,40,40,40, 1, 0);
     sExplosion_ship.init(t7, 0,0,128,128, 64, 0.5);
 
-    //init random numbers
-    random_engine.seed(time(0));
-
     //keyboard buffers initialization
     memset(CurrentKeyState,     false, sizeof(CurrentKeyState));
     memset(PreviousKeyState,    false, sizeof(PreviousKeyState));
@@ -164,8 +158,7 @@ void Game::input()
                     if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S))
                     {
                         state=GAME;
-                        std::uniform_int_distribution<> randomNum(0,4);
-                        backgrindex = randomNum(random_engine);
+                        backgrindex = rnd.getRndInt(0,4);
                         lives = 3;
                         score = 0;
                         p->shield = true;
@@ -271,8 +264,7 @@ void Game::update(sf::Time delta)
                 {
                  if (a->R==15) continue;
                  Entity *e = new asteroid();
-                 std::uniform_int_distribution<> randomNum(0,360);
-                 e->settings(sRock_small,a->x,a->y,randomNum(random_engine),15);
+                 e->settings(sRock_small,a->x,a->y,rnd.getRndInt(0,360),15);
                  entities.push_back(e);
                 }
 
@@ -321,9 +313,7 @@ void Game::update(sf::Time delta)
         if ( numasteroids < 20 )
          {
            asteroid *a = new asteroid();
-           std::uniform_int_distribution<> randomNum(0,360);
-           std::uniform_int_distribution<> randomHeight(0,screenheight);
-           a->settings(sRock, 0,randomHeight(random_engine), randomNum(random_engine), 25);
+           a->settings(sRock, 0,rnd.getRndInt(0,screenheight), rnd.getRndInt(0,360), 25);
            entities.push_back(a);
          }
 

@@ -50,8 +50,8 @@ class asteroid: public Entity
 public:
     asteroid()
     {
-        dx=rand()%80-40;
-        dy=rand()%80-40;
+        dx = rnd.getRndInt(-40,40);
+        dy = rnd.getRndInt(-40,40);
         name="asteroid";
     }
 
