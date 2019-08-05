@@ -205,8 +205,17 @@ void Game::input()
                 {
                     if (!KeyHeld(sf::Keyboard::Z)) p->shield = false;
                 }
-                if (KeyHeld(sf::Keyboard::Right)) p->angle+=0.03;
-                if (KeyHeld(sf::Keyboard::Left))  p->angle-=0.03;
+
+                if (KeyHeld(sf::Keyboard::Right))
+                    p->right = true;
+                else
+                    p->right = false;
+
+                if (KeyHeld(sf::Keyboard::Left))
+                    p->left = true;
+                else
+                    p->left = false;
+
                 if (KeyHeld(sf::Keyboard::Up))
                     p->thrust=true;
                 else

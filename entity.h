@@ -94,6 +94,8 @@ class player: public Entity
 {
 public:
    bool thrust;
+   bool left, right;
+   float turnspeed = 300;
 
    player()
    {
@@ -102,6 +104,8 @@ public:
 
    void update(sf::Time dt)
    {
+     if (left) angle -= turnspeed * dt.asSeconds();
+     if (right) angle += turnspeed * dt.asSeconds();
      if (thrust)
       { dx+=cos(angle*DEGTORAD)*200;
         dy+=sin(angle*DEGTORAD)*200;}
